@@ -25,7 +25,7 @@ def writeClass():
 
     j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
 
-    print j2_env.get_template('migracaoPrePago.tpl').render(tableName='T_TESTE', campos=campos)
+    print j2_env.get_template('javaClass.tpl').render(tableName='T_TESTE', campos=campos)
 
 def parseType(tipo):
 
