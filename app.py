@@ -27,7 +27,9 @@ def writeClass():
 
     print j2_env.get_template('javaClass.tpl').render(tableName='T_TESTE', campos=campos)
 
-def parseType(tipo):
+def parseType(tipo, dataLenght):
+
+    print dataLenght
 
     if tipo == 'VARCHAR2' :
         return "String"
@@ -38,9 +40,9 @@ def readTable(tableName):
     con = makeConection()
     cur = con.cursor()
 
-    cur.execute("SELECT column_name, DATA_TYPE FROM user_tab_cols WHERE TABLE_NAME = :tableName", {"tableName":tableName})
+    cur.execute("SELECT column_name, DATA_TYPE, data_length FROM user_tab_cols WHERE TABLE_NAME = :tableName", {"tableName":tableName})
     for result in cur.fetchall():
-       campos.append(Campo(result[0], parseType(result[1])))
+       campos.append(Campo(result[0], parseType(result[1], result[2])))
 
     cur.close()
     con.close()
