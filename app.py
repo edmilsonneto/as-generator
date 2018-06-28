@@ -17,22 +17,24 @@ def makeConection():
 def main():
 
     #readTable("T_LOJA")
-    writeClass()
+    writeClass("T_RESPROCDOCAGENDADO")
    
-def writeClass():
+def writeClass(tableName):
 
-    campos = readTable("T_LOJA")
+    campos = readTable(tableName)
 
     j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
 
-    print j2_env.get_template('javaClass.tpl').render(tableName='T_TESTE', campos=campos)
+    print j2_env.get_template('javaClass.tpl').render(tableName=tableName, campos=campos)
 
-def parseType(tipo, dataLenght):
-
-    print dataLenght
+def parseType(columnName,tipo, dataLenght, dataPrecision, dataScale):
 
     if tipo == 'VARCHAR2' :
         return "String"
+    elif tipo == 'NUMBER' and (dataScale == 0 or not dataScale ):
+        return "Integer"
+    elif tipo == 'NUMBER' and dataScale == 4:
+        return "BigDecimal"
 
 def readTable(tableName):
     campos = []
@@ -40,9 +42,9 @@ def readTable(tableName):
     con = makeConection()
     cur = con.cursor()
 
-    cur.execute("SELECT column_name, DATA_TYPE, data_length FROM user_tab_cols WHERE TABLE_NAME = :tableName", {"tableName":tableName})
+    cur.execute("SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, DATA_PRECISION, DATA_SCALE FROM user_tab_cols WHERE TABLE_NAME = :tableName", {"tableName":tableName})
     for result in cur.fetchall():
-       campos.append(Campo(result[0], parseType(result[1], result[2])))
+       campos.append(Campo(result[0], parseType(result[0], result[1], result[2], result[3], result[4])))
 
     cur.close()
     con.close()
