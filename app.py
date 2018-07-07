@@ -1,55 +1,59 @@
-import cx_Oracle, os
+import os, json
 from jinja2 import Environment, FileSystemLoader
 from Campo import Campo
 
-# Capture our current directory
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-def makeConection():
-
-    ip = '10.1.71.21'
-    port = 1521
-    SID = 'hom'
-    dsn_tns = cx_Oracle.makedsn(ip, port, SID)
-
-    return cx_Oracle.connect('unikvp', 'unikvp.1234', dsn_tns)
+templatePath = 'template/'
 
 def main():
 
-    #readTable("T_LOJA")
-    writeClass("T_RESPROCDOCAGENDADO")
-   
-def writeClass(tableName):
+    with open('input/mapeamento.as') as json_file:  
+        data = json.load(json_file)
 
-    campos = readTable(tableName)
+        for value in data['entidades']:
+            merge(value)
+            editFiles(value['nome'])
 
-    j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
 
-    print j2_env.get_template('javaClass.tpl').render(tableName=tableName, campos=campos)
+def merge(entidade):
+    
+    
+    entityName = entidade['nome']
+    entityFields = entidade['campos']
 
-def parseType(columnName,tipo, dataLenght, dataPrecision, dataScale):
+    jinja = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))), trim_blocks=True)
 
-    if tipo == 'VARCHAR2' :
-        return "String"
-    elif tipo == 'NUMBER' and (dataScale == 0 or not dataScale ):
-        return "Integer"
-    elif tipo == 'NUMBER' and dataScale == 4:
-        return "BigDecimal"
+    writeFile(entityName, jinja.get_template(templatePath + 'mapeamento.tpl').render(nomeEntidade=entityName, campos=entityFields), '.xml') 
 
-def readTable(tableName):
-    campos = []
+    writeFile(entityName, jinja.get_template(templatePath + 'entidade.tpl').render(nomeEntidade=entityName, campos=entityFields), '.java') 
 
-    con = makeConection()
-    cur = con.cursor()
+    writeFile('Colecao' + entityName, jinja.get_template(templatePath + 'colecao.tpl').render(nomeEntidade=entityName, campos=entityFields), '.java') 
 
-    cur.execute("SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, DATA_PRECISION, DATA_SCALE FROM user_tab_cols WHERE TABLE_NAME = :tableName", {"tableName":tableName})
-    for result in cur.fetchall():
-       campos.append(Campo(result[0], parseType(result[0], result[1], result[2], result[3], result[4])))
+    writeFile('ComandoRepositorio' + entityName + 'JDBC', jinja.get_template(templatePath + 'comandoRepositorio.tpl').render(nomeEntidade=entityName, campos=entityFields), '.java') 
 
-    cur.close()
-    con.close()
+def writeFile(fileName, stringFile, fileExtension):
 
-    return campos
+    outputPath = 'output/'
+
+    fileName = fileName.lower() if fileExtension == '.xml' else fileName
+
+    file = open(outputPath + fileName + fileExtension,'w') 
+    file.write(stringFile)
+    file.close
+
+def editFiles(entityName):
+    cardsBusinessPath = '/Users/edmilsonneto/Downloads/autorizador/conf/src/WEB-INF/conf/cardsBusiness.properties'
+    cardsFachadaPath = '/Users/edmilsonneto/Downloads/autorizador/src/com/neus/cards/business/fachada/CardsFachada.java'
+
+    with open(cardsBusinessPath, 'a') as the_file:
+        the_file.write('\nCOLECAO_' + entityName.upper() + '=' + entityName.lower() + '/' + entityName[:1].lower() + entityName[1:] + '.xml\n')
+
+    jinja = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))), trim_blocks=True)
+    code = jinja.get_template(templatePath + 'cardsFachada.tpl').render(nomeEntidade=entityName)
+
+    linesCardsFachada = open(cardsFachadaPath).read().splitlines()
+    linesCardsFachada[len(linesCardsFachada) - 1] = ''
+    open(cardsFachadaPath,'w').write('\n'.join(linesCardsFachada))
+    print linesCardsFachada
 
 if __name__ == '__main__':
     main()
