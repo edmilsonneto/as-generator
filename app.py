@@ -1,6 +1,5 @@
 import os, json
 from jinja2 import Environment, FileSystemLoader
-from Campo import Campo
 
 templatePath = 'template/'
 
@@ -14,11 +13,10 @@ def main():
             editFiles(value['nome'])
 
 
-def merge(entidade):
+def merge(entity):
     
-    
-    entityName = entidade['nome']
-    entityFields = entidade['campos']
+    entityName = entity['nome']
+    entityFields = entity['campos']
 
     jinja = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))), trim_blocks=True)
 
@@ -41,19 +39,20 @@ def writeFile(fileName, stringFile, fileExtension):
     file.close
 
 def editFiles(entityName):
-    cardsBusinessPath = '/Users/edmilsonneto/Downloads/autorizador/conf/src/WEB-INF/conf/cardsBusiness.properties'
+    
     cardsFachadaPath = '/Users/edmilsonneto/Downloads/autorizador/src/com/neus/cards/business/fachada/CardsFachada.java'
 
+    linesCardsFachada = open(cardsFachadaPath).read().splitlines()
+    linesCardsFachada[len(linesCardsFachada) - 1] = str('   public Colecao' + entityName + ' getColecao' + entityName + '();')
+    linesCardsFachada.append(str('  public void setColecao' + entityName + '(Colecao' + entityName + ' colecao' + entityName + ');'))
+    linesCardsFachada.append('}')
+    open(cardsFachadaPath,'w').write('\n'.join(linesCardsFachada))
+
+def editCardsBusiness(entityName):
+
+    cardsBusinessPath = '/Users/edmilsonneto/Downloads/autorizador/conf/src/WEB-INF/conf/cardsBusiness.properties'
     with open(cardsBusinessPath, 'a') as the_file:
         the_file.write('\nCOLECAO_' + entityName.upper() + '=' + entityName.lower() + '/' + entityName[:1].lower() + entityName[1:] + '.xml\n')
-
-    jinja = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))), trim_blocks=True)
-    code = jinja.get_template(templatePath + 'cardsFachada.tpl').render(nomeEntidade=entityName)
-
-    linesCardsFachada = open(cardsFachadaPath).read().splitlines()
-    linesCardsFachada[len(linesCardsFachada) - 1] = ''
-    open(cardsFachadaPath,'w').write('\n'.join(linesCardsFachada))
-    print linesCardsFachada
 
 if __name__ == '__main__':
     main()
