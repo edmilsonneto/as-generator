@@ -1,0 +1,40 @@
+package com.neus.cards.data.{{entityName.lower()}}.{{entityName}};
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.neus.cards.business.{{entityName.lower()}}.{{entityName}};
+import com.neus.cards.data.util.ComandoRepositorioAbstratoCardsJDBC;
+import com.neus.cards.data.util.SetPreparedStatement;
+import com.neus.util.chave.ObjetoChave;
+
+public class ComandoRepositorio{{entityName}}JDBC extends ComandoRepositorioAbstratoCardsJDBC<{{entityName}}>{
+	
+
+	@Override
+	protected void preencherPreparedStatement(SetPreparedStatement ps, {{entityName}} {{entityName[:1].lower() + entityName[1:]}}) throws SQLException {
+
+{% for item in fields %}
+        ps.set({{entityName[:1].lower() + entityName[1:]}}.get{{item.name.title()}}());
+{% endfor %}
+	}
+
+
+	@Override
+	public void setObjeto(ObjetoChave obj, ResultSet rs) throws SQLException {
+		
+		{{entityName}} {{entityName[:1].lower() + entityName[1:]}} = ({{entityName}}) obj;
+
+		{{entityName[:1].lower() + entityName[1:]}}.setCodigo(rs.getInt("ID{{entityName.upper()}}"));
+{% for item in fields %}
+		{{entityName[:1].lower() + entityName[1:]}}.set{{item.name.title()}}(rs.get{{'Int' if item.tipo == 'Integer' else item.tipo}}("{{item.name.upper()}}"));
+{% endfor %}
+
+	}
+
+	@Override
+	public ObjetoChave criarObjeto() {
+		return new {{entityName}}();
+	}
+
+}

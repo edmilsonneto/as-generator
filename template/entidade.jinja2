@@ -1,0 +1,24 @@
+package com.neus.cards.business.{{entityName.lower()}}.{{entityName}};
+
+@Entity
+@Table(name = "T_{{entityName.upper()}}")
+@SequenceGenerator(name = "gerador", sequenceName = "SEQ_{{entityName.upper()}}", allocationSize = 1)
+@AttributeOverride(name = "codigo", column = @Column(name = "ID{{entityName.upper()}}"))
+public class {{entityName}} extends ObjetoCancelavelImpl {
+
+{% for item in fields %}
+    private {{ item.type }} {{ item.name }};
+{% endfor %}
+
+{% for item in fields %}
+    public {{item.type}} get{{item.name.title()}}() {
+        return this.{{item.name}};
+    }
+
+    public void set{{item.name.title()}}({{item.type}} get{{item.name}}) {
+        this.{{item.name}} = {{item.name}};
+    }
+{% endfor %}
+    
+	
+}

@@ -1,0 +1,13 @@
+{
+    "entitys": [
+        {
+            "name": "Pessoa",
+            "fields": [
+                { "name": "nome", "type": "String", "nullable": "false" },
+                { "name": "sobrenome", "type": "String", "nullable": "false" },
+                { "name": "email", "type": "String", "nullable": "false" },
+                { "name": "idade", "type": "Integer", "nullable": "false" }
+            ]
+        }
+    ]
+}

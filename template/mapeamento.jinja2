@@ -20,35 +20,35 @@
 
 <colecao>
     <nomeClasseColecao>
-        com.neus.cards.business.{{nomeEntidade.lower()}}.Colecao{{nomeEntidade}}
+        com.neus.cards.business.{{entityName.lower()}}.Colecao{{entityName}}
     </nomeClasseColecao>
     <repositorio>
         <comandoRepositorio>
             <nomeClasseComandoRepositorio>
-                com.neus.cards.data.{{nomeEntidade.lower()}}.ComandoRepositorio{{nomeEntidade}}JDBC
+                com.neus.cards.data.{{entityName.lower()}}.ComandoRepositorio{{entityName}}JDBC
             </nomeClasseComandoRepositorio>
-            <nomeSequencia>SEQ_{{nomeEntidade.upper()}}</nomeSequencia>
+            <nomeSequencia>SEQ_{{entityName.upper()}}</nomeSequencia>
             <tabela>
-                <nomeTabela>T_{{nomeEntidade.upper()}}</nomeTabela>
+                <nomeTabela>T_{{entityName.upper()}}</nomeTabela>
                 <aliasTabela>T</aliasTabela>
                
                 <coluna>
-                    <nomeColuna>ID{{nomeEntidade.upper()}}</nomeColuna>
+                    <nomeColuna>ID{{entityName.upper()}}</nomeColuna>
                     <tipoColuna>INTEGER</tipoColuna>
                     <nulo>false</nulo>
                 </coluna>
 
 {% for item in campos %}
                 <coluna>
-                    <nomeColuna>{{item.nome.upper()}}</nomeColuna>
-                    <tipoColuna>{{item.tipo.upper()}}</tipoColuna>
+                    <nomeColuna>{{item.name.upper()}}</nomeColuna>
+                    <tipoColuna>{{item.type.upper()}}</tipoColuna>
                     <nulo>{{item.nullable}}</nulo>
                 </coluna>
 {% endfor %}
 
                 <chavePrimaria>
                     <coluna>
-                        <nomeColuna>ID{{nomeEntidade.upper()}}</nomeColuna>
+                        <nomeColuna>ID{{entityName.upper()}}</nomeColuna>
                         <tipoColuna>INTEGER</tipoColuna>
                         <nulo>false</nulo>
                     </coluna>
