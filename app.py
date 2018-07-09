@@ -3,11 +3,21 @@ import json
 from jinja2 import Environment, FileSystemLoader
 
 PROJECT_PATH = '/Users/edmilsonneto/Developer/git/autorizador/'
+
 CARDS_BUSINESS_PATH = 'conf/src/WEB-INF/conf/cardsBusiness.properties'
 CARDS_FACHADA_PATH = 'src/com/neus/cards/business/fachada/CardsFachada.java'
 CARDS_FACHADA_HTTP = 'src/com/neus/cards/business/fachada/http/CardsFachadaHttp.java'
 CARDS_FACHADA_IMPL = 'src/com/neus/cards/business/fachada/CardsFachadaImpl.java'
 REPOSITORIO_COLECOES_PATH = 'src/com/neus/cards/business/fachada/RepositorioColecoes.java'
+
+TEMPLATE_MAPEAMENTO_XML = 'template/mapeamento.jinja2'
+TEMPLATE_ENTIDADE = 'template/entidade.jinja2'
+TEMPLATE_COLECAO = 'template/colecao.jinja2'
+TEMPLATE_COMANDO_REPOSITORIO = 'template/comandoRepositorio.jinja2'
+TEMPLATE_CARDS_FACHADA_HTTP = 'template/cardsFachadaHttp.jinja2'
+TEMPLATE_CARDS_FACHADA_IMPL = 'template/cardsFachadaImpl.jinja2'
+TEMPLATE_REPOSITORIO_COLECOES = 'template/repositorioColecoes.jinja2'
+
 TEMPLATE_PATH = 'template/'
 PROJECT_ENCODE = 'cp1252'
 J2 = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))), trim_blocks=True)
@@ -26,10 +36,10 @@ def merge(entity):
     entity_name = entity['name']
     entity_fields = entity['fields']
 
-    write_file(entity_name, J2.get_template(TEMPLATE_PATH + 'mapeamento.jinja2').render(entityName=entity_name, fields=entity_fields), '.xml')
-    write_file(entity_name, J2.get_template(TEMPLATE_PATH + 'entidade.jinja2').render(entityName=entity_name, fields=entity_fields), '.java')
-    write_file('Colecao' + entity_name, J2.get_template(TEMPLATE_PATH + 'colecao.jinja2').render(entityName=entity_name, fields=entity_fields), '.java')
-    write_file('ComandoRepositorio' + entity_name + 'JDBC', J2.get_template(TEMPLATE_PATH + 'comandoRepositorio.jinja2').render(entityName=entity_name, fields=entity_fields), '.java')
+    write_file(entity_name, J2.get_template(TEMPLATE_MAPEAMENTO_XML).render(entityName=entity_name, fields=entity_fields), '.xml')
+    write_file(entity_name, J2.get_template(TEMPLATE_ENTIDADE).render(entityName=entity_name, fields=entity_fields), '.java')
+    write_file('Colecao' + entity_name, J2.get_template(TEMPLATE_COLECAO).render(entityName=entity_name, fields=entity_fields), '.java')
+    write_file('ComandoRepositorio' + entity_name + 'JDBC', J2.get_template(TEMPLATE_COMANDO_REPOSITORIO).render(entityName=entity_name, fields=entity_fields), '.java')
 
 
 def write_file(file_name, string_file, file_extension):
@@ -72,7 +82,7 @@ def edit_cards_fachada(entity_name):
 
 def edit_cards_fachada_http(entity_name):
 
-    new_content = J2.get_template(TEMPLATE_PATH + 'cardsFachadaHttp.jinja2').render(entityName=entity_name)
+    new_content = J2.get_template(TEMPLATE_CARDS_FACHADA_HTTP).render(entityName=entity_name)
 
     path = PROJECT_PATH + CARDS_FACHADA_HTTP
 
@@ -89,7 +99,7 @@ def edit_cards_fachada_http(entity_name):
 
 def edit_cards_fachada_impl(entityName):
 
-    new_content = J2.get_template(TEMPLATE_PATH + 'cardsFachadaImpl.jinja2').render(entityName=entityName)
+    new_content = J2.get_template(TEMPLATE_CARDS_FACHADA_IMPL).render(entityName=entityName)
 
     path = PROJECT_PATH + CARDS_FACHADA_IMPL
 
@@ -106,7 +116,7 @@ def edit_cards_fachada_impl(entityName):
 
 def edit_repositorio_colecoes(entityName):
 
-    new_content = J2.get_template(TEMPLATE_PATH + 'repositorioColecoes.jinja2').render(entityName=entityName)
+    new_content = J2.get_template(TEMPLATE_REPOSITORIO_COLECOES).render(entityName=entityName)
 
     path = PROJECT_PATH + REPOSITORIO_COLECOES_PATH
 
