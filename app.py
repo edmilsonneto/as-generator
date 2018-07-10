@@ -29,27 +29,31 @@ def main():
 
         for value in data['entitys']:
             merge(value)
-            edit_repositorio_colecoes(value['name'])
+           # edit_repositorio_colecoes(value['name'])
+
 
 
 def merge(entity):
     entity_name = entity['name']
     entity_fields = entity['fields']
 
-    write_file(entity_name, J2.get_template(TEMPLATE_MAPEAMENTO_XML).render(entityName=entity_name, fields=entity_fields), '.xml')
-    write_file(entity_name, J2.get_template(TEMPLATE_ENTIDADE).render(entityName=entity_name, fields=entity_fields), '.java')
-    write_file('Colecao' + entity_name, J2.get_template(TEMPLATE_COLECAO).render(entityName=entity_name, fields=entity_fields), '.java')
-    write_file('ComandoRepositorio' + entity_name + 'JDBC', J2.get_template(TEMPLATE_COMANDO_REPOSITORIO).render(entityName=entity_name, fields=entity_fields), '.java')
+    entidade_path = PROJECT_PATH + 'src/com/neus/cards/business/'
+
+   # write_file(entity_name, J2.get_template(TEMPLATE_MAPEAMENTO_XML).render(entityName=entity_name, fields=entity_fields), '.xml')
+    write_file(entity_name, J2.get_template(TEMPLATE_ENTIDADE).render(entityName=entity_name, fields=entity_fields), '.java', entidade_path)
+   # write_file('Colecao' + entity_name, J2.get_template(TEMPLATE_COLECAO).render(entityName=entity_name, fields=entity_fields), '.java')
+   # write_file('ComandoRepositorio' + entity_name + 'JDBC', J2.get_template(TEMPLATE_COMANDO_REPOSITORIO).render(entityName=entity_name, fields=entity_fields), '.java')
 
 
-def write_file(file_name, string_file, file_extension):
-    output_path = 'output/'
+def write_file(file_name, string_file, file_extension, output_path):
 
     file_name = file_name.lower() if file_extension == '.xml' else file_name
 
-    file = open(output_path + file_name + file_extension, 'w')
-    file.write(string_file)
-    file.close
+    output_path = output_path + file_name.lower() + '/'+ file_name + file_extension
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as f:
+        f.write(string_file)
 
 
 def edit_file(entity_name):
@@ -97,15 +101,15 @@ def edit_cards_fachada_http(entity_name):
     open(path, 'w').write('\n'.join(lines))
 
 
-def edit_cards_fachada_impl(entityName):
+def edit_cards_fachada_impl(entity_name):
 
-    new_content = J2.get_template(TEMPLATE_CARDS_FACHADA_IMPL).render(entityName=entityName)
+    new_content = J2.get_template(TEMPLATE_CARDS_FACHADA_IMPL).render(entityName=entity_name)
 
     path = PROJECT_PATH + CARDS_FACHADA_IMPL
 
     lines = open(path, encoding=PROJECT_ENCODE).read().splitlines()
 
-    lines.insert(26, 'import com.neus.cards.business.' + entityName.lower() + '.Colecao' + entityName + ';')
+    lines.insert(26, 'import com.neus.cards.business.' + entity_name.lower() + '.Colecao' + entity_name + ';')
 
     lines[len(lines) - 1] = new_content + ' \n'
 
@@ -114,15 +118,15 @@ def edit_cards_fachada_impl(entityName):
     open(path, 'w').write('\n'.join(lines))
 
 
-def edit_repositorio_colecoes(entityName):
+def edit_repositorio_colecoes(entity_name):
 
-    new_content = J2.get_template(TEMPLATE_REPOSITORIO_COLECOES).render(entityName=entityName)
+    new_content = J2.get_template(TEMPLATE_REPOSITORIO_COLECOES).render(entityName=entity_name)
 
     path = PROJECT_PATH + REPOSITORIO_COLECOES_PATH
 
     lines = open(path, encoding=PROJECT_ENCODE).read().splitlines()
 
-    lines.insert(25, 'import com.neus.cards.business.' + entityName.lower() + '.Colecao' + entityName + ';')
+    lines.insert(25, 'import com.neus.cards.business.' + entity_name.lower() + '.Colecao' + entity_name + ';')
 
     lines[len(lines) - 1] = new_content + ' \n'
 
